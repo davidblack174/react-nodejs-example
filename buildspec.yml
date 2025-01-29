@@ -18,8 +18,12 @@ phases:
       - echo "Building and running Docker image..."
       - cd my-app
       - docker build -t my-app .
-      - docker run -p 80:80 my-app
+      - docker save -o my-app.tar my-app  # Save Docker image as a tar file for upload
 
 artifacts:
   files:
     - '**/*'
+  discard-paths: no
+  base-directory: .
+  name: my-app-artifacts
+  s3-prefix: simplifify-it
