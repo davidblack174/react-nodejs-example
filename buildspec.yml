@@ -3,22 +3,28 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      nodejs: 14
+      docker: latest
     commands:
-      - echo Installing dependencies...
-      - npm install -g npm@latest || npm install -g npm@8
+      - echo "Installing Docker..."
+      - yum update -y
+      - amazon-linux-extras enable docker
+      - yum install -y docker
+      - service docker start
+      - usermod -a -G docker ec2-user
+      - chmod 666 /var/run/docker.sock
+      - docker --version
+
+  pre_build:
+    commands:
+      - echo "Ensuring Docker is running..."
+      - service docker status
+
   build:
     commands:
-      - echo Building UI...
-      - cd my-app && npm run build
-      - echo Installing API dependencies...
-      - cd ../api && npm install
-  post_build:
-    commands:
-      - echo Build completed!
+      - echo "Building and running Docker image..."
+      - docker build -t my-app .
+      - docker run -p 80:80 my-app
 
 artifacts:
   files:
-    - app/build/**
-    - api/**
-    - Dockerfile
+    - '**/*'
