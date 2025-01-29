@@ -7,7 +7,6 @@ phases:
     commands:
       - echo "Installing Docker..."
       - yum update -y
-      - amazon-linux-extras enable docker
       - yum install -y docker
       - service docker start
       - usermod -a -G docker ec2-user
