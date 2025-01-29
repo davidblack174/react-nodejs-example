@@ -10,11 +10,11 @@ phases:
   pre_build:
     commands:
       - echo Installing UI dependencies...
-      - cd my-app && npm install
+      - cd app && npm install
   build:
     commands:
       - echo Building UI...
-      - cd my-app && npm run build
+      - cd app && npm run build
       - echo Installing API dependencies...
       - cd ../api && npm install
   post_build:
@@ -23,6 +23,6 @@ phases:
 
 artifacts:
   files:
-    - my-app/build/**
+    - app/build/**
     - api/**
     - Dockerfile
