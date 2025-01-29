@@ -15,15 +15,22 @@ phases:
 
   build:
     commands:
-      - echo "Building and running Docker image..."
+      - echo "Building and saving Docker image..."
       - cd my-app
       - docker build -t my-app .
-      - docker save -o my-app.tar my-app  # Save Docker image as a tar file for upload
+      - docker save -o my-app.tar my-app
 
 artifacts:
   files:
-    - '**/*'
+    - my-app.tar
   discard-paths: no
-  base-directory: .
   name: my-app-artifacts
   s3-prefix: simplifify-it
+
+cache:
+  paths:
+    - '/root/.docker/**'
+
+env:
+  variables:
+    AWS_DEFAULT_REGION: us-east-1
