@@ -19,12 +19,16 @@ phases:
       - ls -l  # Debugging: Check if Dockerfile exists
       - docker build -t my-app -f ./Dockerfile . 
 
+  post_build:
+    commands:
+      - echo Uploading to S3...
+      - aws s3 cp my-app.tar s3://your-s3-bucket-name/
+
 artifacts:
   files:
     - my-app.tar
   discard-paths: no
   name: my-app-artifacts
-  s3-prefix: simplifify-it
 
 cache:
   paths:
