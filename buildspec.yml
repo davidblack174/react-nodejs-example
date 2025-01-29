@@ -3,10 +3,10 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      nodejs: 10
+      nodejs: 14
     commands:
       - echo Installing dependencies...
-      - npm install -g npm@latest
+      - npm install -g npm@latest || npm install -g npm@8
   pre_build:
     commands:
       - echo Installing UI dependencies...
