@@ -14,14 +14,10 @@ phases:
       - chmod 666 /var/run/docker.sock
       - docker --version
 
-  pre_build:
-    commands:
-      - echo "Ensuring Docker is running..."
-      - systemctl docker status
-
   build:
     commands:
       - echo "Building and running Docker image..."
+      - cd my-app
       - docker build -t my-app .
       - docker run -p 80:80 my-app
 
