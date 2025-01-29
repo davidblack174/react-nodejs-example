@@ -15,10 +15,9 @@ phases:
 
   build:
     commands:
-      - echo "Building and saving Docker image..."
-      - cd my-app
-      - docker build -t my-app .
-      - docker save -o my-app.tar my-app
+      - echo "Building and running Docker image..."
+      - ls -l  # Debugging: Check if Dockerfile exists
+      - docker build -t my-app -f ./Dockerfile . 
 
 artifacts:
   files:
