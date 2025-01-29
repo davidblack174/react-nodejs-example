@@ -8,10 +8,10 @@ phases:
       - echo "Installing Docker..."
       - sudo yum update -y
       - sudo yum install -y docker
-      - systemctl start docker
-      - systemctl enable docker
-      - usermod -aG docker $USER
-      - chmod 666 /var/run/docker.sock
+      - sudo systemctl start docker
+      - sudo systemctl enable docker
+      - sudo usermod -aG docker $USER
+      - sudo chmod 666 /var/run/docker.sock
       - docker --version
 
   build:
