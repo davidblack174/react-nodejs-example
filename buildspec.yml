@@ -1,39 +1,29 @@
 version: 0.2
 
 phases:
-  install:
-    runtime-versions:
-      docker: latest
+  pre_build:
     commands:
-      - echo "Installing Docker..."
+      - echo "Updating instance and installing dependencies..."
       - sudo yum update -y
-      - sudo yum install -y docker
-      - nohup dockerd > /tmp/dockerd.log 2>&1 &
-      - sleep 10  # Give Docker time to start
-      - sudo chmod 666 /var/run/docker.sock
-      - docker --version
+      - sudo yum install -y docker git
+      - sudo service docker start || sudo dockerd &
+      - git clone https://github.com/davidodediran/AWS-Codepipeline.git
+      - cd react-nodejs-example
+      - echo "Dependencies installed successfully!"
 
   build:
     commands:
-      - echo "Building and running Docker image..."
-      - ls -l  # Debugging: Check if Dockerfile exists
-      - docker build -t my-app -f ./Dockerfile . 
+      - echo "Building the Docker image..."
+      - docker build -t react-nodejs .
+      - echo "Docker image built successfully!"
 
   post_build:
     commands:
-      - echo Uploading to S3...
-      - aws s3 cp my-app.tar s3://your-s3-bucket-name/
+      - echo "Running the new container with index.html..."
+      - docker run -d -p 80:80 --name react-nodejs react-nodejs
+      - echo "Deployment complete!"
 
 artifacts:
   files:
-    - my-app.tar
-  discard-paths: no
-  name: my-app-artifacts
-
-cache:
-  paths:
-    - '/root/.docker/**'
-
-env:
-  variables:
-    AWS_DEFAULT_REGION: us-east-1
+    - buildspec.yml
+    - simpleDeploy
