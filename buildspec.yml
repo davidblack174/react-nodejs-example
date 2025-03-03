@@ -7,7 +7,7 @@ phases:
       - sudo yum update -y
       - sudo yum install -y docker git
       - sudo service docker start || sudo dockerd &
-      - git clone https://github.com/davidodediran/AWS-Codepipeline.git
+      - git clone https://github.com/davidblack174/react-nodejs-example.git
       - cd react-nodejs-example
       - echo "Dependencies installed successfully!"
 
