@@ -25,5 +25,4 @@ phases:
 
 artifacts:
   files:
-    - buildspec.yml
-    - simpleDeploy
+    - 'react-nodejs-example/**/*'
