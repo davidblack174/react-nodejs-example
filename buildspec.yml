@@ -1,30 +1,28 @@
 version: 0.2
 
-env:
-  variables:
-    IMAGE_REPO_NAME: react-nodejs-repo
-    IMAGE_TAG: latest
-
 phases:
   pre_build:
     commands:
-      - echo Logging in to Amazon ECR...
-      - aws --version
-      - $(aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin <aws_account_id>.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com)
-      - REPOSITORY_URI=<aws_account_id>.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
-      - echo Repository URI: $REPOSITORY_URI
+      - echo "Updating instance and installing dependencies..."
+      - sudo yum update -y
+      - sudo yum install -y docker git
+      - sudo service docker start || sudo dockerd &
+      - git clone https://github.com/davidblack174/react-nodejs-example.git
+      - cd react-nodejs-example
+      - echo "Dependencies installed successfully!"
+
   build:
     commands:
-      - echo Building the Docker image...
-      - docker build -t $IMAGE_REPO_NAME .
-      - docker tag $IMAGE_REPO_NAME:latest $REPOSITORY_URI:$IMAGE_TAG
+      - echo "Building the Docker image..."
+      - docker build -t react-nodejs .
+      - echo "Docker image built successfully!"
+
   post_build:
     commands:
-      - echo Pushing the Docker image to ECR...
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - echo Writing image definitions file...
-      - printf '[{"name":"web-app-container","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+      - echo "Running the new container with index.html..."
+      - docker run -d -p 80:80 --name react-nodejs react-nodejs
+      - echo "Deployment complete!"
 
 artifacts:
   files:
-    - imagedefinitions.json
+    - 'react-nodejs-example/**/*'
