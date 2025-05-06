@@ -1,28 +1,39 @@
 version: 0.2
 
+env:
+  variables:
+    # ECR repository URI (without tag). Replace with your own.
+    REPOSITORY_URI: 012345678910.dkr.ecr.us-east-1.amazonaws.com/react-nodejs-example
+
 phases:
   pre_build:
     commands:
-      - echo "Updating instance and installing dependencies..."
-      - sudo yum update -y
-      - sudo yum install -y docker git
-      - sudo service docker start || sudo dockerd &
-      - git clone https://github.com/davidblack174/react-nodejs-example.git
-      - cd react-nodejs-example
-      - echo "Dependencies installed successfully!"
+      - echo "Logging in to Amazon ECR..."
+      - aws --version                                   # verify AWS CLI present :contentReference[oaicite:1]{index=1}
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION \
+        | docker login --username AWS --password-stdin $REPOSITORY_URI
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - echo "Pre-build complete: IMAGE_TAG=$IMAGE_TAG"
 
   build:
     commands:
       - echo "Building the Docker image..."
-      - docker build -t react-nodejs .
-      - echo "Docker image built successfully!"
+      - docker build -t $REPOSITORY_URI:latest .
+      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+      - echo "Docker image built: $REPOSITORY_URI:$IMAGE_TAG" :contentReference[oaicite:2]{index=2}
 
   post_build:
     commands:
-      - echo "Running the new container with index.html..."
-      - docker run -d -p 80:80 --name react-nodejs react-nodejs
-      - echo "Deployment complete!"
+      - echo "Pushing Docker images to ECR..."
+      - docker push $REPOSITORY_URI:latest
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - echo "Writing imagedefinitions.json file..."
+      - printf '[{"name":"react-nodejs","imageUri":"%s"}]' \
+        $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json :contentReference[oaicite:3]{index=3}
+      - cat imagedefinitions.json
+      - echo "Post-build complete."
 
 artifacts:
   files:
-    - 'react-nodejs-example/**/*'
+    - imagedefinitions.json                        # include in output artifact :contentReference[oaicite:4]{index=4}
